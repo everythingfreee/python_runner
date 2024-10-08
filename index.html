@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Code Runner</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10.5/brython.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10.5/brython_stdlib.js"></script>
+    <style>
+        :root {
+            --bg-color: #e0e5ec;
+            --text-color: #333;
+            --shadow-color: #a3b1c6;
+            --highlight-color: #ffffff;
+        }
+
+        .dark-mode {
+            --bg-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --shadow-color: #1a2733;
+            --highlight-color: #34495e;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .neumorphic {
+            background: var(--bg-color);
+            border-radius: 15px;
+            box-shadow: 5px 5px 15px var(--shadow-color),
+                        -5px -5px 15px var(--highlight-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        #code-editor, #output {
+            width: 100%;
+            height: 200px;
+            border: none;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        #run-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #run-btn:hover {
+            background-color: #2980b9;
+        }
+
+        #dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--bg-color);
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s;
+        }
+    </style>
+</head>
+<body onload="brython()">
+    <button id="dark-mode-toggle">🌓</button>
+    <div class="container">
+        <h1>Python Code Runner</h1>
+        <div class="neumorphic">
+            <textarea id="code-editor" placeholder="Enter your Python code here..."></textarea>
+        </div>
+        <div class="neumorphic">
+            <button id="run-btn">Run Code</button>
+        </div>
+        <div class="neumorphic">
+            <textarea id="output" readonly placeholder="Output will appear here...">Developed by Sanaullah Shaheer using Python for HTML
+                if there is any problem you can contact me at +93777386727
+            </textarea>
+        </div>
+    </div>
+
+    <script type="text/python">
+from browser import document, window
+import sys
+import traceback
+
+def run_code(event):
+    output = document["output"]
+    code = document["code-editor"].value
+    
+    # Clear previous output
+    output.value = ""
+    
+    # Redirect standard output to our textarea
+    class OutputWrapper:
+        def write(self, data):
+            output.value += str(data)
+        def flush(self):
+            pass
+    
+    sys.stdout = OutputWrapper()
+    sys.stderr = OutputWrapper()
+    
+    try:
+        exec(code)
+    except Exception as e:
+        print(traceback.format_exc())
+
+# Bind the run_code function to the button click event
+document["run-btn"].bind("click", run_code)
+
+# Add pulse animation to the run button
+def add_pulse(event):
+    event.target.classList.add("pulse")
+    window.setTimeout(lambda: event.target.classList.remove("pulse"), 500)
+
+document["run-btn"].bind("click", add_pulse)
+
+# Dark mode toggle
+def toggle_dark_mode(event):
+    document.body.classList.toggle("dark-mode")
+    event.target.textContent = "☀️" if document.body.classList.contains("dark-mode") else "🌓"
+
+document["dark-mode-toggle"].bind("click", toggle_dark_mode)
+
+# Background animation
+from browser import window, document, html
+import random
+
+def create_particle():
+    particle = html.DIV()
+    particle.style = {
+        "position": "fixed",
+        "width": "5px",
+        "height": "5px",
+        "background": "rgba(255, 255, 255, 0.5)",
+        "borderRadius": "50%",
+        "pointerEvents": "none",
+        "left": f"{random.random() * 100}vw",
+        "top": f"{random.random() * 100}vh",
+        "transition": "all 3s linear"
+    }
+    document.body <= particle
+    
+    def move_particle():
+        particle.style.transform = f"translate({random.random() * 100 - 50}px, {random.random() * 100 - 50}px)"
+        particle.style.opacity = "0"
+    
+    def remove_particle():
+        document.body.removeChild(particle)
+    
+    window.setTimeout(move_particle, 100)
+    window.setTimeout(remove_particle, 3000)
+
+def animate_background():
+    create_particle()
+    window.setTimeout(animate_background, 200)
+
+animate_background()
+    </script>
+</body>
+</html>
